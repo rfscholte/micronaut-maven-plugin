@@ -22,6 +22,7 @@ package io.micronaut.maven;
  */
 public enum Packaging {
     JAR("jar"),
+    JLINK("jlink"),
     NATIVE_IMAGE("native-image"),
     DOCKER("docker"),
     DOCKER_NATIVE("docker-native"),

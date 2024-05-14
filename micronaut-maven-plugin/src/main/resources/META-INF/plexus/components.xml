@@ -55,6 +55,58 @@
             </configuration>
         </component>
 
+                <!-- JLINK packaging -->
+        <component>
+            <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+            <role-hint>jlink</role-hint>
+            <implementation>
+                org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+            </implementation>
+            <configuration>
+                <lifecycles>
+                    <lifecycle>
+                        <id>default</id>
+                        <phases>
+                            <generate-sources>
+                                ${project.groupId}:${project.artifactId}:${project.version}:generate-import-factory,
+                                ${project.groupId}:${project.artifactId}:${project.version}:generate-openapi-generic,
+                                ${project.groupId}:${project.artifactId}:${project.version}:generate-openapi-client,
+                                ${project.groupId}:${project.artifactId}:${project.version}:generate-openapi-server
+                            </generate-sources>
+                            <process-resources>
+                                org.apache.maven.plugins:maven-resources-plugin:resources
+                            </process-resources>
+                            <compile>
+                                org.apache.maven.plugins:maven-compiler-plugin:compile
+                            </compile>
+                            <process-test-resources>
+                                org.apache.maven.plugins:maven-resources-plugin:testResources
+                            </process-test-resources>
+                            <test-compile>
+                                org.apache.maven.plugins:maven-compiler-plugin:testCompile
+                            </test-compile>
+                            <test>
+                                ${project.groupId}:${project.artifactId}:${project.version}:start-testresources-service,
+                                org.apache.maven.plugins:maven-surefire-plugin:test
+                            </test>
+                            <prepare-package>
+                                ${project.groupId}:${project.artifactId}:${project.version}:aot-analysis
+                            </prepare-package>
+                            <package>
+                                org.apache.maven.plugins:maven-jlink-plugin:jlink
+                            </package>
+                            <install>
+                                org.apache.maven.plugins:maven-install-plugin:install
+                            </install>
+                            <deploy>
+                                org.apache.maven.plugins:maven-deploy-plugin:deploy
+                            </deploy>
+                        </phases>
+                    </lifecycle>
+                </lifecycles>
+            </configuration>
+        </component>
+
         <!-- Native image packaging, using GraalVM Native Image Maven Plugin -->
         <component>
             <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
