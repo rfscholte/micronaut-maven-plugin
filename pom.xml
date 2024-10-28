@@ -17,8 +17,8 @@
         <module>micronaut-maven-core</module>
         <module>micronaut-maven-enforcer-rules</module>
         <module>micronaut-maven-jib-integration</module>
-        <module>micronaut-maven-integration-tests</module>
         <module>micronaut-maven-plugin</module>
+        <module>micronaut-maven-integration-tests</module>
     </modules>
 
     <issueManagement>
