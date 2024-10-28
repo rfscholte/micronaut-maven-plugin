@@ -10,3 +10,6 @@ try (ServerSocket s = new ServerSocket(port as int)) {
 } catch (IOException e) {
     assert false
 }
+
+assert !new File(basedir, ".micronaut/test-resources/test-resources.properties").exists()
+assert !new File(System.getProperty("user.home"), ".micronaut/test-resources-my-namespace/test-resources.properties").exists()
