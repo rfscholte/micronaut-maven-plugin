@@ -1,31 +1,35 @@
 {
-  "extends": [
-    "config:base"
-  ],
+  "extends": ["config:recommended"],
   "addLabels": ["type: dependency-upgrade"],
-  "schedule": [
-    "after 10pm every day"
-  ],
+  "schedule": ["after 10pm"],
   "prHourlyLimit": 1,
   "prConcurrentLimit": 20,
   "timezone": "Europe/Prague",
   "packageRules": [
     {
-      "matchPackagePatterns": ["actions.*"],
       "dependencyDashboardApproval": true,
-      "matchUpdateTypes": ["patch"],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true,
+      "matchPackageNames": [
+        "/actions.*/"
+      ]
+    },{
+      "matchUpdateTypes": [
+        "patch"
+      ],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
     },{
-      "matchUpdateTypes": ["patch"],
-      "matchCurrentVersion": "!/^0/",
-      "automerge": true
-    },{
-      "matchPaths": ["src/it/package-docker-native-different-parent-version/pom.xml"],
+      "matchFileNames": [
+        "src/it/package-docker-native-different-parent-version/pom.xml"
+      ],
       "matchPackageNames": ["io.micronaut:micronaut-parent"],
       "enabled": false
     },{
-      "matchPaths": ["src/main/resources/dockerfiles/Dockerfile*"],
+      "matchFileNames": ["src/main/resources/dockerfiles/Dockerfile*"],
       "matchPackageNames": ["eclipse-temurin", "amazonlinux"],
       "enabled": false
     }
