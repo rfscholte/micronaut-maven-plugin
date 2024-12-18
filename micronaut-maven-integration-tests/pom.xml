@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.micronaut.maven</groupId>
         <artifactId>micronaut-maven-plugin-parent</artifactId>
-        <version>4.6.2-SNAPSHOT</version>
+        <version>4.6.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>micronaut-maven-integration-tests</artifactId>
@@ -74,7 +74,7 @@
                     <dependency>
                         <groupId>org.apache.groovy</groupId>
                         <artifactId>groovy</artifactId>
-                        <version>4.0.21</version>
+                        <version>4.0.22</version>
                     </dependency>
                 </dependencies>
                 <configuration>

@@ -17,6 +17,7 @@ package io.micronaut.maven;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.Os;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.micronaut.maven.AbstractDockerMojo.MOSTLY_STATIC_NATIVE_IMAGE_GRAALVM_FLAG;
+import static io.micronaut.maven.RunMojo.THIS_PLUGIN;
 
 /**
  * Utility methods for different mojos.
@@ -49,7 +51,7 @@ public final class MojoUtils {
         if (toolchain != null) {
             executable = toolchain.findTool(JAVA);
         } else {
-            File javaBinariesDir = new File(new File(System.getProperty("java.home")), "bin");
+            var javaBinariesDir = new File(new File(System.getProperty("java.home")), "bin");
             if (Os.isFamily(Os.FAMILY_UNIX)) {
                 executable = new File(javaBinariesDir, JAVA).getAbsolutePath();
             } else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -62,7 +64,7 @@ public final class MojoUtils {
     }
 
     public static List<String> computeNativeImageArgs(List<String> nativeImageBuildArgs, String baseImageRun, String argsFile) {
-        List<String> allNativeImageBuildArgs = new ArrayList<>();
+        var allNativeImageBuildArgs = new ArrayList<String>();
         if (nativeImageBuildArgs != null && !nativeImageBuildArgs.isEmpty()) {
             allNativeImageBuildArgs.addAll(nativeImageBuildArgs);
         }
@@ -91,23 +93,23 @@ public final class MojoUtils {
             }
 
             return args.stream()
-                    .filter(arg -> !arg.startsWith("-H:Name"))
-                    .filter(arg -> !arg.startsWith("-H:Class"))
-                    .filter(arg -> !arg.startsWith("-H:Path"))
-                    .flatMap(arg -> {
-                        if (arg.startsWith("@")) {
-                            String fileName = arg.substring(1);
-                            return parseNativeImageArgsFile(fileName);
-                        } else if (arg.startsWith("\\Q") && arg.endsWith("\\E")) {
-                            // start the search at length - 3 to skip \Q or \E at the end
-                            int lastIndexOfSlash = arg.lastIndexOf(File.separator, arg.length() - 3);
-                            return Stream.of("\\Q/home/app/libs/" + arg.substring(lastIndexOfSlash + 1));
-                        } else if (arg.startsWith("-H:ConfigurationFileDirectories")) {
-                            return Stream.of(parseConfigurationFilesDirectoriesArg(arg));
-                        } else {
-                            return Stream.of(arg);
-                        }
-                    });
+                .filter(arg -> !arg.startsWith("-H:Name"))
+                .filter(arg -> !arg.startsWith("-H:Class"))
+                .filter(arg -> !arg.startsWith("-H:Path"))
+                .flatMap(arg -> {
+                    if (arg.startsWith("@")) {
+                        String fileName = arg.substring(1);
+                        return parseNativeImageArgsFile(fileName);
+                    } else if (arg.startsWith("\\Q") && arg.endsWith("\\E")) {
+                        // start the search at length - 3 to skip \Q or \E at the end
+                        int lastIndexOfSlash = arg.lastIndexOf(File.separator, arg.length() - 3);
+                        return Stream.of("\\Q/home/app/libs/" + arg.substring(lastIndexOfSlash + 1));
+                    } else if (arg.startsWith("-H:ConfigurationFileDirectories")) {
+                        return Stream.of(parseConfigurationFilesDirectoriesArg(arg));
+                    } else {
+                        return Stream.of(arg);
+                    }
+                });
         } else {
             throw new RuntimeException("Unable to find args file: " + argsFilePath);
         }
@@ -119,26 +121,40 @@ public final class MojoUtils {
         String separator = "/";
         if (arg.contains("generateResourceConfig") || arg.contains("generateTestResourceConfig")) {
             return Stream.of(directories)
-                    .map(FilenameUtils::separatorsToUnix)
-                    .map(directory -> {
-                        String[] splitDirectory = directory.split(separator);
-                        return "/home/app/" + splitDirectory[splitDirectory.length - 1];
-                    })
-                    .collect(Collectors.joining(","))
-                    .transform(s -> "-H:ConfigurationFileDirectories=" + s);
+                .map(FilenameUtils::separatorsToUnix)
+                .map(directory -> {
+                    String[] splitDirectory = directory.split(separator);
+                    return "/home/app/" + splitDirectory[splitDirectory.length - 1];
+                })
+                .collect(Collectors.joining(","))
+                .transform(s -> "-H:ConfigurationFileDirectories=" + s);
         } else {
             return Stream.of(directories)
-                    .map(FilenameUtils::separatorsToUnix)
-                    .map(directory -> {
-                        String[] splitDirectory = directory.split(separator);
-                        String last4Directories = splitDirectory[splitDirectory.length - 4] + separator +
-                                                  splitDirectory[splitDirectory.length - 3] + separator +
-                                                  splitDirectory[splitDirectory.length - 2] + separator +
-                                                  splitDirectory[splitDirectory.length - 1];
-                        return "/home/app/graalvm-reachability-metadata/" + last4Directories;
-                    })
-                    .collect(Collectors.joining(","))
-                    .transform(s -> "-H:ConfigurationFileDirectories=" + s);
+                .map(FilenameUtils::separatorsToUnix)
+                .map(directory -> {
+                    String[] splitDirectory = directory.split(separator);
+                    String last4Directories = splitDirectory[splitDirectory.length - 4] + separator +
+                        splitDirectory[splitDirectory.length - 3] + separator +
+                        splitDirectory[splitDirectory.length - 2] + separator +
+                        splitDirectory[splitDirectory.length - 1];
+                    return "/home/app/graalvm-reachability-metadata/" + last4Directories;
+                })
+                .collect(Collectors.joining(","))
+                .transform(s -> "-H:ConfigurationFileDirectories=" + s);
         }
+    }
+
+    /**
+     * Checks if the project has the Micronaut Maven plugin defined.
+     *
+     * @param project the Maven project
+     * @return true if the project has the Micronaut Maven plugin defined
+     */
+    public static boolean hasMicronautMavenPlugin(MavenProject project) {
+        String[] parts = THIS_PLUGIN.split(":");
+        String groupId = parts[0];
+        String artifactId = parts[1];
+        return project.getBuildPlugins().stream()
+            .anyMatch(p -> p.getGroupId().equals(groupId) && p.getArtifactId().equals(artifactId));
     }
 }

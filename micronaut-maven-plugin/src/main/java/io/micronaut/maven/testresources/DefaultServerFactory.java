@@ -24,7 +24,6 @@ import org.apache.maven.toolchain.ToolchainManager;
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -65,8 +64,12 @@ public class DefaultServerFactory implements ServerFactory {
     @Override
     public void startServer(ServerUtils.ProcessParameters processParameters) {
         log.info("Starting Micronaut Test Resources service, version " + testResourcesVersion);
+        var cli = new ArrayList<String>();
+
         String javaBin = findJavaExecutable(toolchainManager, mavenSession);
-        List<String> cli = new ArrayList<>();
+        if (javaBin == null) {
+            throw new IllegalStateException("Java executable not found");
+        }
         cli.add(javaBin);
         cli.addAll(processParameters.getJvmArguments());
         if (debugServer) {
@@ -74,20 +77,36 @@ public class DefaultServerFactory implements ServerFactory {
         }
         processParameters.getSystemProperties().forEach((key, value) -> cli.add("-D" + key + "=" + value));
         cli.add("-cp");
-        cli.add(processParameters.getClasspath().stream().map(File::getAbsolutePath).collect(Collectors.joining(File.pathSeparator)));
-        cli.add(processParameters.getMainClass());
+        cli.add(processParameters.getClasspath().stream()
+            .map(File::getAbsolutePath)
+            .collect(Collectors.joining(File.pathSeparator)));
+        String mainClass = processParameters.getMainClass();
+        if (mainClass == null) {
+            throw new IllegalStateException("Main class is not set");
+        }
+        cli.add(mainClass);
         cli.addAll(processParameters.getArguments());
-        ProcessBuilder builder = new ProcessBuilder(cli);
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Command parameters: %s", String.join(" ", cli)));
+        }
+
+        var builder = new ProcessBuilder(cli);
         try {
             process = builder.inheritIO().start();
         } catch (Exception e) {
+            log.error("Failed to start server", e);
             serverStarted.set(false);
-            process.destroyForcibly();
-        } finally {
-            if (process.isAlive()) {
-                serverStarted.set(true);
-            } else {
+            if (process != null) {
                 process.destroyForcibly();
+            }
+        } finally {
+            if (process != null) {
+                if (process.isAlive()) {
+                    serverStarted.set(true);
+                } else {
+                    process.destroyForcibly();
+                }
             }
         }
     }

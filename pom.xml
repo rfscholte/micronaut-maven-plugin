@@ -5,7 +5,7 @@
 
     <groupId>io.micronaut.maven</groupId>
     <artifactId>micronaut-maven-plugin-parent</artifactId>
-    <version>4.6.2-SNAPSHOT</version>
+    <version>4.6.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Micronaut Maven Plugin - Parent</name>
@@ -72,12 +72,12 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <maven.version>3.9.7</maven.version>
-        <micronaut.version>4.5.3</micronaut.version>
+        <maven.version>3.9.8</maven.version>
+        <micronaut.version>4.5.4</micronaut.version>
         <native-maven-plugin.version>0.10.2</native-maven-plugin.version>
         <micronaut.aot.version>2.4.0</micronaut.aot.version>
-        <micronaut.test.resources.version>2.5.2</micronaut.test.resources.version>
-        <micronaut.openapi.version>6.11.0</micronaut.openapi.version>
+        <micronaut.test.resources.version>2.5.4</micronaut.test.resources.version>
+        <micronaut.openapi.version>6.11.1</micronaut.openapi.version>
 
         <maven.resources-plugin.version>3.3.1</maven.resources-plugin.version>
         <maven.archiver-plugin.version>3.6.0</maven.archiver-plugin.version>
@@ -89,14 +89,14 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2024-06-10T09:12:10Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2024-08-05T13:53:54Z</project.build.outputTimestamp>
 
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>micronaut-projects</sonar.organization>
         <sonar.java.checkstyle.reportPaths>${project.basedir}/target/checkstyle-result.xml</sonar.java.checkstyle.reportPaths>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/micronaut-maven-integration-tests/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <jacoco.version>0.8.12</jacoco.version>
-        <junit-jupiter.version>5.10.2</junit-jupiter.version>
+        <junit-jupiter.version>5.10.3</junit-jupiter.version>
         <directory-watcher.version>0.18.0</directory-watcher.version>
         <testcontainers.version>1.19.8</testcontainers.version>
         <snakeyaml.version>2.2</snakeyaml.version>
@@ -182,6 +182,12 @@
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-core</artifactId>
                 <version>${docker-java.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.docker-java</groupId>
@@ -201,7 +207,7 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.3.2</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_maven-plugin_packaging -->
                 <plugin>
@@ -231,11 +237,11 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.2.5</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.4.1</version>
+                    <version>3.4.2</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
@@ -251,7 +257,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.7.0</version>
+                    <version>3.8.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-site-plugin</artifactId>
@@ -259,7 +265,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.6.2</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
@@ -277,7 +283,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.1.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-checkstyle-plugin</artifactId>
@@ -307,9 +313,9 @@
                 </plugin>
                 <plugin>
                     <groupId>com.gradle</groupId>
-                    <artifactId>gradle-enterprise-maven-extension</artifactId>
+                    <artifactId>develocity-maven-extension</artifactId>
                     <configuration>
-                        <gradleEnterprise>
+                        <develocity>
                             <plugins>
                                 <plugin>
                                     <artifactId>maven-checkstyle-plugin</artifactId>
@@ -518,7 +524,7 @@
                                     </executions>
                                 </plugin>
                             </plugins>
-                        </gradleEnterprise>
+                        </develocity>
                     </configuration>
                 </plugin>
             </plugins>
